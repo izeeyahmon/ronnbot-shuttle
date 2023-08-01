@@ -34,7 +34,6 @@ use std::io::Cursor;
 use std::sync::Arc;
 use std::{
     convert::TryFrom,
-    env, fs,
     sync::atomic::{AtomicU64, Ordering},
 };
 pub struct ShardManagerContainer;
@@ -109,9 +108,15 @@ async fn handle_reaction(ctx: Context, reaction: Reaction, add_role: bool) {
         .get::<MessageMap>()
         .expect("Expected MessageMap in TypeMap.")
         .clone();
-
     if reaction.channel_id != ChannelId(message_data.load(Ordering::SeqCst)) {
         return;
+    }
+    if let Some(user) = reaction.user_id {
+        if let Ok(struct_user) = user.to_user(&ctx.http).await {
+            if struct_user.bot {
+                return;
+            }
+        }
     }
 
     let reaction_roles_data = data_read
@@ -120,7 +125,7 @@ async fn handle_reaction(ctx: Context, reaction: Reaction, add_role: bool) {
         .clone();
 
     let reaction_roles = &*reaction_roles_data.read().await;
-    for (emoji, role_id) in reaction_roles.into_iter() {
+    for (emoji, role_id) in reaction_roles {
         if emoji != &reaction.emoji {
             continue;
         }
@@ -130,17 +135,17 @@ async fn handle_reaction(ctx: Context, reaction: Reaction, add_role: bool) {
                 if let Ok(mut member) = guild_id.member(&ctx, user_id).await {
                     if add_role {
                         if let Err(err) = member.add_role(&ctx, role_id).await {
-                            error!("Role could not be added: {}", err);
+                            println!("Role could not be added: {}", err);
                         }
-                        info!(
+                        println!(
                             "Role {} added to user {} by reacting with {}.",
                             role_id, member, emoji
                         )
                     } else {
                         if let Err(err) = member.remove_role(&ctx, role_id).await {
-                            error!("Role could not be removed: {}", err);
+                            println!("Role could not be removed: {}", err);
                         }
-                        info!(
+                        println!(
                             "Role {} removed from user {} by un-reacting with {}.",
                             role_id, member, emoji
                         )
@@ -233,22 +238,21 @@ async fn serenity(
 
     let http = Http::new(&token);
 
-    let config_raw = r#"{
-   "channel_id":1027793756872769536 ,
-   "emotes": [
-      "<a:gib:956543324410507284>",
-      "<:coffee:956526221410332682>",
-      "<:parrot:>",
-      "<:pepefingerping:956560593819693087>",
-      "<:coin:">
-   ],
-   "role_ids": 
-    
-      1027794564133691453, 968428801728069662 ,1041328459877724250
-      1055667323534573709, 1088778873883336755
-   ]
-}"#;
-    let config: Config = serde_json::from_str(&config_raw).unwrap();
+    let config_2 = r#"{
+    "channel_id": 1027793756872769536,
+    "emotes": [
+        "<a:gib:956543324410507284>",
+        "<a:fraggy_spit:1084701921392218172>",
+        "🦜",
+        "<:pepefingerping:956560593819693087>",
+        "🪙"
+    ],
+    "role_ids": [
+        1027794564133691453, 968428801728069662, 1041328459877724250,
+        1055667323534573709, 1088778873883336755
+    ]
+ }"#;
+    let config: Config = serde_json::from_str(&config_2).unwrap();
 
     let (owners, _bot_id) = match http.get_current_application_info().await {
         Ok(info) => {
@@ -282,12 +286,12 @@ async fn serenity(
         data.insert::<ShardManagerContainer>(client.shard_manager.clone());
         let mut reaction_roles = vec![];
 
-        for index in 0..config.emotes.len() {
+        dbg!(for index in 0..config.emotes.len() {
             reaction_roles.push((
                 ReactionType::try_from(config.emotes[index].as_str()).unwrap(),
                 RoleId(config.role_ids[index]),
             ));
-        }
+        });
         data.insert::<MessageMap>(Arc::new(AtomicU64::new(config.channel_id)));
         data.insert::<ReactionMap>(Arc::new(RwLock::new(reaction_roles)));
     }

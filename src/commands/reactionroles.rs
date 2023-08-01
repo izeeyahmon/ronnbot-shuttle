@@ -11,11 +11,11 @@ async fn reactionroles(ctx: &Context, msg: &Message) -> CommandResult {
             m.embed(|e| {
                 e.title("Reaction Roles")
                     .description(
-                        "<:gib:956543324410507284> for giveaways given by Collab People
-                        <:coffee:956526221410332682> for Burning away Money to Zil
-                        <:parrot:> for PirateNationBrick Announcement By zyo
+                        "<a:gib:956543324410507284> for giveaways given by Collab People
+                        <a:fraggy_spit:1084701921392218172> for Burning away Money to Zil
+                        :parrot: for PirateNationBrick Announcement By zyo
                         <:pepefingerping:956560593819693087> or Any other Pings that Fuckers want to ping
-                        <:coin:> for Alt-coins Buy opps?",
+                        :coin: for Alt-coins Buy opps?",
                     )
                     .timestamp(Timestamp::now())
             })
@@ -26,7 +26,7 @@ async fn reactionroles(ctx: &Context, msg: &Message) -> CommandResult {
         .react(
             &ctx.http,
             ReactionType::Custom {
-                animated: (false),
+                animated: (true),
                 id: (EmojiId(956543324410507284)),
                 name: (Some(String::from("gib"))),
             },
@@ -37,15 +37,15 @@ async fn reactionroles(ctx: &Context, msg: &Message) -> CommandResult {
         .react(
             &ctx.http,
             ReactionType::Custom {
-                animated: (false),
-                id: (EmojiId(95652622141033268)),
-                name: (Some(String::from("coffee"))),
+                animated: (true),
+                id: (EmojiId(1084701921392218172)),
+                name: (Some(String::from("fraggy_spit"))),
             },
         )
         .await?;
 
     message
-        .react(&ctx.http, ReactionType::Unicode("coffee".to_string()))
+        .react(&ctx.http, ReactionType::Unicode("🦜".to_string()))
         .await?;
 
     message
@@ -60,7 +60,7 @@ async fn reactionroles(ctx: &Context, msg: &Message) -> CommandResult {
         .await?;
 
     message
-        .react(&ctx.http, ReactionType::Unicode("coin".to_string()))
+        .react(&ctx.http, ReactionType::Unicode("🪙".to_string()))
         .await?;
     Ok(())
 }
