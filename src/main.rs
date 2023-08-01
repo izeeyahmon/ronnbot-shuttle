@@ -233,8 +233,20 @@ async fn serenity(
 
     let http = Http::new(&token);
 
-    let config_raw = fs::read_to_string(env::current_dir().unwrap().join("config.json"))
-        .expect("Unable to read config");
+    let config_raw = r#"{
+   "channel_id": 1028246978628440064,
+   "emotes": [
+      "<:suhate:1077292647544279170>",
+      "<:ifiloseitall:1039730494226567168>",
+      "<:izeewl:951674684431302699>",
+      "<:richwhalefreed:1039730496290177096>",
+      "<:ilikeboys:872842548350156830>"
+   ],
+   "role_ids": [
+      1091234317084135485, 1091234354509918318, 1091234399003082845,
+      1091234488090107964, 1091234521350950942
+   ]
+}"#;
     let config: Config = serde_json::from_str(&config_raw).unwrap();
 
     let (owners, _bot_id) = match http.get_current_application_info().await {
