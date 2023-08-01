@@ -66,16 +66,7 @@ async fn zyo(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 async fn ziz(ctx: &Context, msg: &Message) -> CommandResult {
     msg.channel_id
-        .send_message(&ctx.http, |m| {
-            m.embed(|e| {
-                e.title("ziz crush")
-                    .description("gay malaysian architect he looks even better with no clothes")
-                    .timestamp(Timestamp::now())
-                    .image("attachment://zizan.png")
-            })
-            .add_file("src/images/zizan.png")
-        })
-        .await?;
+        .send_message(&ctx.http,|m|{m.content("Gay Malaysian Architect he looks even better with no clothes https://media.discordapp.net/attachments/949924107133288518/956457745492627476/274921989_10160074269248659_5726856971672920047_n.png")} ).await?;
 
     Ok(())
 }
@@ -137,12 +128,7 @@ async fn gn(ctx: &Context, msg: &Message) -> CommandResult {
 async fn fraggy(ctx: &Context, msg: &Message) -> CommandResult {
     msg.channel_id
         .send_message(&ctx.http, |m| {
-            m.embed(|e| {
-                e.title("Fraggy Rant")
-                    .timestamp(Timestamp::now())
-                    .image("attachment://fraggy.jpg")
-            })
-            .add_file("src/images/fraggy.jpg")
+        m.content("https://media.discordapp.net/attachments/1088145091216027838/1099700374035779584/image0.jpg")
         })
         .await?;
 
