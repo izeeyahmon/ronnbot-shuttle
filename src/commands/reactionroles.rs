@@ -12,7 +12,7 @@ async fn reactionroles(ctx: &Context, msg: &Message) -> CommandResult {
                 e.title("Reaction Roles")
                     .description(
                         "<:gib:956543324410507284> for giveaways given by Collab People
-                        <:coffee:95652622141033268>2 for Burning away Money to Zil
+                        <:coffee:956526221410332682> for Burning away Money to Zil
                         <:parrot:> for PirateNationBrick Announcement By zyo
                         <:pepefingerping:956560593819693087> or Any other Pings that Fuckers want to ping
                         <:coin:> for Alt-coins Buy opps?",
