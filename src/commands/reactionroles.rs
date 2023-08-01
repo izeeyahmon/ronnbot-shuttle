@@ -11,11 +11,11 @@ async fn reactionroles(ctx: &Context, msg: &Message) -> CommandResult {
             m.embed(|e| {
                 e.title("Reaction Roles")
                     .description(
-                        "<:suhate:1077292647544279170> For Giveaways given by Collab People
-                        <:ifiloseitall:1039730494226567168> for Burning away Money to Zil
-                        <:izeewl:951674684431302699> for PirateNationBrick Announcement By zyo
-                        <:richwhalefreed:1039730496290177096> or Any other Pings that Fuckers want to ping
-                        <:ilikeboys:872842548350156830> for Alt-coins Buy opps?",
+                        "<:gib:956543324410507284> for giveaways given by Collab People
+                        <:coffee:95652622141033268>2 for Burning away Money to Zil
+                        <:parrot:> for PirateNationBrick Announcement By zyo
+                        <:pepefingerping:956560593819693087> or Any other Pings that Fuckers want to ping
+                        <:coin:> for Alt-coins Buy opps?",
                     )
                     .timestamp(Timestamp::now())
             })
@@ -27,8 +27,8 @@ async fn reactionroles(ctx: &Context, msg: &Message) -> CommandResult {
             &ctx.http,
             ReactionType::Custom {
                 animated: (false),
-                id: (EmojiId(1077292647544279170)),
-                name: (Some(String::from("suhate"))),
+                id: (EmojiId(956543324410507284)),
+                name: (Some(String::from("gib"))),
             },
         )
         .await?;
@@ -38,10 +38,14 @@ async fn reactionroles(ctx: &Context, msg: &Message) -> CommandResult {
             &ctx.http,
             ReactionType::Custom {
                 animated: (false),
-                id: (EmojiId(1039730494226567168)),
-                name: (Some(String::from("ifiloseitall"))),
+                id: (EmojiId(95652622141033268)),
+                name: (Some(String::from("coffee"))),
             },
         )
+        .await?;
+
+    message
+        .react(&ctx.http, ReactionType::Unicode("coffee".to_string()))
         .await?;
 
     message
@@ -49,32 +53,14 @@ async fn reactionroles(ctx: &Context, msg: &Message) -> CommandResult {
             &ctx.http,
             ReactionType::Custom {
                 animated: (false),
-                id: (EmojiId(951674684431302699)),
-                name: (Some(String::from("izeewl"))),
+                id: (EmojiId(956560593819693087)),
+                name: (Some(String::from("pepefingerping"))),
             },
         )
         .await?;
 
     message
-        .react(
-            &ctx.http,
-            ReactionType::Custom {
-                animated: (false),
-                id: (EmojiId(1039730496290177096)),
-                name: (Some(String::from("richwhalefreed"))),
-            },
-        )
-        .await?;
-
-    message
-        .react(
-            &ctx.http,
-            ReactionType::Custom {
-                animated: (false),
-                id: (EmojiId(872842548350156830)),
-                name: (Some(String::from("ilikeboys"))),
-            },
-        )
+        .react(&ctx.http, ReactionType::Unicode("coin".to_string()))
         .await?;
     Ok(())
 }
