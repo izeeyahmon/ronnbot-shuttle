@@ -60,7 +60,7 @@ pub async fn run(options: &[CommandDataOption]) -> String {
         let mut aggregated_output = String::new();
         match api_result {
             Ok(api_output) => {
-                let result_length = *&api_output.collections.len() as u32;
+                let result_length = api_output.collections.len() as u32;
                 if result_length == 0 {
                     return format!("There is no collection found for the name {} ", collection);
                 }

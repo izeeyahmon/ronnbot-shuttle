@@ -4,7 +4,7 @@ use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::prelude::*;
 use shuttle_secrets::SecretStore;
-use tracing::{error, info};
+use tracing::info;
 mod commands;
 mod data;
 mod slashcommands;
