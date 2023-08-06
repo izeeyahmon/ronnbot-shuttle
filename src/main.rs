@@ -1,9 +1,11 @@
 use anyhow::anyhow;
+use data::botmap::BotMap;
 use serenity::async_trait;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::prelude::*;
 use shuttle_secrets::SecretStore;
+use std::path::PathBuf;
 use tracing::info;
 mod commands;
 mod data;
@@ -43,7 +45,6 @@ impl TypeMapKey for ShardManagerContainer {
 }
 
 struct Bot;
-
 #[async_trait]
 impl EventHandler for Bot {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
@@ -162,22 +163,20 @@ async fn steal(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         msg.channel_id
             .say(&ctx.http, "Please supply some Emojis")
             .await?;
-    } else {
-        if let Some(guild_id) = msg.guild_id {
-            for emojis in args.message().split_whitespace() {
-                let emoji = parse_emoji(emojis).unwrap();
-                let image_url = emoji.url();
-                let mut file = std::fs::File::create(&emoji.name).unwrap();
-                let response = reqwest::get(&image_url).await?;
-                let mut content = Cursor::new(response.bytes().await?);
-                copy(&mut content, &mut file)?;
-                let image = utils::read_image(&emoji.name).expect("Failed to read image");
-                guild_id.create_emoji(&ctx, &emoji.name, &image).await?;
-                std::fs::remove_file(&emoji.name).unwrap();
-                msg.channel_id
-                    .say(&ctx.http, format!("I have added the emoji {}", &emoji.name))
-                    .await?;
-            }
+    } else if let Some(guild_id) = msg.guild_id {
+        for emojis in args.message().split_whitespace() {
+            let emoji = parse_emoji(emojis).unwrap();
+            let image_url = emoji.url();
+            let mut file = std::fs::File::create(&emoji.name).unwrap();
+            let response = reqwest::get(&image_url).await?;
+            let mut content = Cursor::new(response.bytes().await?);
+            copy(&mut content, &mut file)?;
+            let image = utils::read_image(&emoji.name).expect("Failed to read image");
+            guild_id.create_emoji(&ctx, &emoji.name, &image).await?;
+            std::fs::remove_file(&emoji.name).unwrap();
+            msg.channel_id
+                .say(&ctx.http, format!("I have added the emoji {}", &emoji.name))
+                .await?;
         }
     }
     Ok(())
@@ -220,6 +219,7 @@ async fn after(_ctx: &Context, _msg: &Message, command_name: &str, command_resul
 
 #[shuttle_runtime::main]
 async fn serenity(
+    #[shuttle_static_folder::StaticFolder(folder = "images")] images_folder: PathBuf,
     #[shuttle_secrets::Secrets] secret_store: SecretStore,
 ) -> shuttle_serenity::ShuttleSerenity {
     // Get the discord token set in `Secrets.toml`
@@ -235,7 +235,6 @@ async fn serenity(
         return Err(anyhow!("Reservoir keyy was not found").into());
     };
     std::env::set_var("RESERVOIR_API_KEY", reservoir_key);
-
     let http = Http::new(&token);
 
     let config_2 = r#"{
@@ -252,7 +251,7 @@ async fn serenity(
         1055667323534573709, 1088778873883336755
     ]
  }"#;
-    let config: Config = serde_json::from_str(&config_2).unwrap();
+    let config: Config = serde_json::from_str(config_2).unwrap();
 
     let (owners, _bot_id) = match http.get_current_application_info().await {
         Ok(info) => {
@@ -294,6 +293,7 @@ async fn serenity(
         });
         data.insert::<MessageMap>(Arc::new(AtomicU64::new(config.channel_id)));
         data.insert::<ReactionMap>(Arc::new(RwLock::new(reaction_roles)));
+        data.insert::<BotMap>(images_folder);
     }
     let shard_manager = client.shard_manager.clone();
     tokio::spawn(async move {
