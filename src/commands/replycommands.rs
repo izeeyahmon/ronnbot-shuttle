@@ -30,17 +30,16 @@ async fn josh(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 async fn panels(ctx: &Context, msg: &Message) -> CommandResult {
-    let testpath = ctx.data.read().await.get::<BotMap>().unwrap().clone();
-    let f = tokio::fs::File::open(testpath.join("panels.jpg"))
+    let path = ctx.data.read().await.get::<BotMap>().unwrap().clone();
+    let f = tokio::fs::File::open(path.join("panels.jpg"))
         .await
         .unwrap();
     msg.channel_id
         .send_message(&ctx.http, |m| {
-            m.embed(|e| e.title("Jves Panels"))
-                .add_file(AttachmentType::File {
-                    file: &f,
-                    filename: "panels.jpg".to_string(),
-                });
+            m.content("Jves Rug").add_file(AttachmentType::File {
+                file: &f,
+                filename: "panels.jpg".to_string(),
+            });
             m
         })
         .await?;
