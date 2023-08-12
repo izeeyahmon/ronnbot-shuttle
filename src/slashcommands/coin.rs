@@ -99,16 +99,13 @@ pub async fn run(options: &[CommandDataOption]) -> Result<Root, anyhow::Error> {
             coin
         ))
         .await
-        .unwrap()
+        .map_err(|_| anyhow!("Dexscreener API cannot be reached"))?
         .error_for_status()
-        .unwrap()
+        .map_err(|_| anyhow!("No pair exists"))?
         .json::<Root>()
-        .await;
-        dbg!(apiresult.as_ref());
-        match apiresult {
-            Ok(ap) => Ok(ap),
-            Err(_) => Err(anyhow!("Error Parsing Json")),
-        }
+        .await
+        .map_err(|_| anyhow!("Error parsing Json"));
+        apiresult
     } else {
         Err(anyhow!("Please Provide a coin"))
     }

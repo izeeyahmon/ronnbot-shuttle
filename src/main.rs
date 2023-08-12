@@ -64,34 +64,61 @@ impl EventHandler for Bot {
                         .unwrap()
                 }
                 "coin" => {
-                    let api_result = slashcommands::coin::run(&command.data.options)
-                        .await
-                        .unwrap();
-
-                    command
-                        .create_followup_message(&ctx.http, |response| {
-                            response.embed(|e| {
-                                e.title(&api_result.pairs[0].base_token.name)
-                                    .field(
-                                        "Price",
-                                        format!(
-                                            "${} : {}%",
-                                            api_result.pairs[0].to_owned().price_usd.unwrap_or(
-                                                "No value you got rugged bruh".to_string()
+                    if let Ok(api_result) = slashcommands::coin::run(&command.data.options).await {
+                        //let coin = &api_result.pairs[0];
+                        command
+                            .create_followup_message(&ctx.http, |response| {
+                                response.embed(|e| {
+                                    e.title(api_result.pairs[0].to_owned().base_token.name)
+                                        .url(api_result.pairs[0].clone().url)
+                                        .field(
+                                            "Price",
+                                            format!(
+                                                "${} : {}%",
+                                                api_result.pairs[0].to_owned().price_usd.unwrap_or(
+                                                    "No value you got rugged bruh".to_string()
+                                                ),
+                                                api_result.pairs[0].price_change.h24
                                             ),
-                                            api_result.pairs[0].price_change.h24
-                                        ),
-                                        true,
-                                    )
-                                    .colour(if api_result.pairs[0].price_change.h24 > 0.0 {
-                                        Colour::DARK_GREEN
-                                    } else {
-                                        Colour::DARK_RED
-                                    })
+                                            true,
+                                        )
+                                        .field(
+                                            "Liquidity",
+                                            format!(
+                                                "${}",
+                                                api_result.pairs[0]
+                                                    .clone()
+                                                    .liquidity
+                                                    .unwrap_or_default()
+                                                    .usd
+                                            ),
+                                            true,
+                                        )
+                                        .field(
+                                            "Chain",
+                                            format!("${}", api_result.pairs[0].clone().chain_id),
+                                            false,
+                                        )
+                                        .footer(|f| {
+                                            f.text(format!("Requested by {}", command.user))
+                                        })
+                                        .colour(if api_result.pairs[0].price_change.h24 > 0.0 {
+                                            Colour::DARK_GREEN
+                                        } else {
+                                            Colour::DARK_RED
+                                        })
+                                })
                             })
-                        })
-                        .await
-                        .unwrap()
+                            .await
+                            .unwrap()
+                    } else {
+                        command
+                            .create_followup_message(&ctx.http, |response| {
+                                response.content("Some Error occured Contact Izeeyahmon.eth")
+                            })
+                            .await
+                            .unwrap()
+                    }
                 }
                 _ => command
                     .edit_original_interaction_response(&ctx.http, |response| {
