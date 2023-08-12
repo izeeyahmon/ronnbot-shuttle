@@ -4,6 +4,7 @@ use serenity::async_trait;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::prelude::*;
+use serenity::utils::Colour;
 use shuttle_secrets::SecretStore;
 use std::path::PathBuf;
 use tracing::info;
@@ -54,6 +55,7 @@ impl EventHandler for Bot {
             let content = match command.data.name.as_str() {
                 "floorprice" => {
                     let api_result = slashcommands::floorprice::run(&command.data.options).await;
+
                     command
                         .edit_original_interaction_response(&ctx.http, |response| {
                             response.content(api_result)
@@ -61,9 +63,37 @@ impl EventHandler for Bot {
                         .await
                         .unwrap()
                 }
+                "coin" => {
+                    let api_result = slashcommands::coin::run(&command.data.options)
+                        .await
+                        .unwrap();
+
+                    command
+                        .create_followup_message(&ctx.http, |response| {
+                            response.embed(|e| {
+                                e.title(api_result.pairs[0].base_token.name.clone())
+                                    .field(
+                                        "Price",
+                                        format!(
+                                            "${} : {}%",
+                                            api_result.pairs[0].price_usd,
+                                            api_result.pairs[0].price_change.h24
+                                        ),
+                                        true,
+                                    )
+                                    .colour(if api_result.pairs[0].price_change.h24 > 0.0 {
+                                        Colour::DARK_GREEN
+                                    } else {
+                                        Colour::DARK_RED
+                                    })
+                            })
+                        })
+                        .await
+                        .unwrap()
+                }
                 _ => command
                     .edit_original_interaction_response(&ctx.http, |response| {
-                        response.content("Test".to_string())
+                        response.content("Test")
                     })
                     .await
                     .unwrap(),
@@ -84,6 +114,15 @@ impl EventHandler for Bot {
         println!("Connected as {}", ready.user.name);
         let command = Command::create_global_application_command(&ctx.http, |command| {
             slashcommands::floorprice::register(command)
+        })
+        .await;
+
+        println!(
+            "I created the following global slash command: {:#?}",
+            command
+        );
+        let command = Command::create_global_application_command(&ctx.http, |command| {
+            slashcommands::coin::register(command)
         })
         .await;
 

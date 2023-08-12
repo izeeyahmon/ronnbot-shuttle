@@ -70,8 +70,18 @@ async fn zyo(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 async fn ziz(ctx: &Context, msg: &Message) -> CommandResult {
+    let path = ctx.data.read().await.get::<BotMap>().unwrap().clone();
+    let f = tokio::fs::File::open(path.join("zizan.png")).await.unwrap();
     msg.channel_id
-        .send_message(&ctx.http,|m|{m.content("Gay Malaysian Architect he looks even better with no clothes https://media.discordapp.net/attachments/949924107133288518/956457745492627476/274921989_10160074269248659_5726856971672920047_n.png")} ).await?;
+        .send_message(&ctx.http, |m| {
+            m.content("Gay Malaysian Architect he looks better with no clothes on")
+                .add_file(AttachmentType::File {
+                    file: &f,
+                    filename: "zizan.png".to_string(),
+                });
+            m
+        })
+        .await?;
 
     Ok(())
 }
@@ -131,9 +141,17 @@ async fn gn(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 async fn fraggy(ctx: &Context, msg: &Message) -> CommandResult {
+    let path = ctx.data.read().await.get::<BotMap>().unwrap().clone();
+    let f = tokio::fs::File::open(path.join("fraggy.jpg"))
+        .await
+        .unwrap();
     msg.channel_id
         .send_message(&ctx.http, |m| {
-        m.content("https://media.discordapp.net/attachments/1088145091216027838/1099700374035779584/image0.jpg")
+            m.content("FragmanSpit").add_file(AttachmentType::File {
+                file: &f,
+                filename: "fraggy.jpg".to_string(),
+            });
+            m
         })
         .await?;
 

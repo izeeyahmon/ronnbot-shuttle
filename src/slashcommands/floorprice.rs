@@ -20,6 +20,8 @@ pub struct Root {
 pub struct Collection {
     pub name: String,
     pub floor_ask: FloorAsk,
+    pub primary_contract: String,
+    pub image: String,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -42,6 +44,7 @@ pub struct Amount {
     pub usd: f64,
     pub native: f64,
 }
+
 pub async fn run(options: &[CommandDataOption]) -> String {
     let option = options
         .get(0)
@@ -56,7 +59,6 @@ pub async fn run(options: &[CommandDataOption]) -> String {
 
     if let CommandDataOptionValue::String(collection) = option {
         let api_result = call_api(collection).await;
-        dbg!(&api_result);
         let mut aggregated_output = String::new();
         match api_result {
             Ok(api_output) => {
