@@ -65,7 +65,7 @@ impl EventHandler for Bot {
                 }
                 "coin" => {
                     if let Ok(api_result) = slashcommands::coin::run(&command.data.options).await {
-                        //let coin = &api_result.pairs[0];
+                        dbg!(api_result.pairs[0].clone());
                         command
                             .create_followup_message(&ctx.http, |response| {
                                 response.embed(|e| {
@@ -99,9 +99,6 @@ impl EventHandler for Bot {
                                             format!("${}", api_result.pairs[0].clone().chain_id),
                                             false,
                                         )
-                                        .footer(|f| {
-                                            f.text(format!("Requested by {}", command.user))
-                                        })
                                         .colour(if api_result.pairs[0].price_change.h24 > 0.0 {
                                             Colour::DARK_GREEN
                                         } else {

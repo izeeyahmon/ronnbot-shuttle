@@ -17,7 +17,7 @@ pub struct Pair {
     #[serde(rename = "chainId")]
     pub chain_id: String,
     #[serde(rename = "dexId")]
-    // pub dex_id: String,
+    pub dex_id: String,
     pub url: String,
     #[serde(rename = "pairAddress")]
     pub pair_address: String,
