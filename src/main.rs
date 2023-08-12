@@ -71,12 +71,14 @@ impl EventHandler for Bot {
                     command
                         .create_followup_message(&ctx.http, |response| {
                             response.embed(|e| {
-                                e.title(api_result.pairs[0].base_token.name.clone())
+                                e.title(&api_result.pairs[0].base_token.name)
                                     .field(
                                         "Price",
                                         format!(
                                             "${} : {}%",
-                                            api_result.pairs[0].price_usd,
+                                            api_result.pairs[0].to_owned().price_usd.unwrap_or(
+                                                "No value you got rugged bruh".to_string()
+                                            ),
                                             api_result.pairs[0].price_change.h24
                                         ),
                                         true,

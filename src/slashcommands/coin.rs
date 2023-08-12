@@ -1,6 +1,7 @@
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use serenity::builder::CreateApplicationCommand;
+use serenity::model::prelude::application_command::CommandDataOptionValue;
 use serenity::model::prelude::command::CommandOptionType;
 use serenity::model::prelude::interaction::application_command::CommandDataOption;
 
@@ -29,12 +30,12 @@ pub struct Pair {
     #[serde(rename = "priceNative")]
     pub price_native: String,
     #[serde(rename = "priceUsd")]
-    pub price_usd: String,
+    pub price_usd: Option<String>,
     // pub txns: Txns,
     pub volume: Volume,
     #[serde(rename = "priceChange")]
     pub price_change: PriceChange,
-    pub liquidity: Liquidity,
+    pub liquidity: Option<Liquidity>,
     // #[serde(rename = "pairCreatedAt")]
     // pub pair_created_at: i64,
 }
@@ -92,17 +93,23 @@ pub async fn run(options: &[CommandDataOption]) -> Result<Root, anyhow::Error> {
         .resolved
         .as_ref()
         .expect("Query");
-
-    let apiresult = reqwest::get(format!(
-        "https://api.dexscreener.com/latest/dex/search?q={:?}",
-        option
-    ))
-    .await
-    .unwrap()
-    .json::<Root>()
-    .await;
-    match apiresult {
-        Ok(ap) => Ok(ap),
-        Err(_) => Err(anyhow!("Error Parsing Json")),
+    if let CommandDataOptionValue::String(coin) = option {
+        let apiresult = reqwest::get(format!(
+            "https://api.dexscreener.com/latest/dex/search?q={}",
+            coin
+        ))
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap()
+        .json::<Root>()
+        .await;
+        dbg!(apiresult.as_ref());
+        match apiresult {
+            Ok(ap) => Ok(ap),
+            Err(_) => Err(anyhow!("Error Parsing Json")),
+        }
+    } else {
+        Err(anyhow!("Please Provide a coin"))
     }
 }
