@@ -10,6 +10,7 @@ use std::path::PathBuf;
 use tracing::info;
 mod commands;
 mod data;
+mod ronn_utils;
 mod slashcommands;
 use crate::commands::floor::*;
 use crate::commands::meta::*;
@@ -44,7 +45,6 @@ pub struct ShardManagerContainer;
 impl TypeMapKey for ShardManagerContainer {
     type Value = Arc<Mutex<ShardManager>>;
 }
-
 struct Bot;
 #[async_trait]
 impl EventHandler for Bot {
@@ -86,11 +86,13 @@ impl EventHandler for Bot {
                                             "Liquidity",
                                             format!(
                                                 "${}",
-                                                api_result.pairs[0]
-                                                    .clone()
-                                                    .liquidity
-                                                    .unwrap_or_default()
-                                                    .usd
+                                                ronn_utils::utils::prettify_int(
+                                                    api_result.pairs[0]
+                                                        .clone()
+                                                        .liquidity
+                                                        .unwrap_or_default()
+                                                        .usd
+                                                )
                                             ),
                                             false,
                                         )
@@ -105,7 +107,12 @@ impl EventHandler for Bot {
                                         )
                                         .field(
                                             "VOL",
-                                            format!("${}", api_result.pairs[0].clone().volume.h24,),
+                                            format!(
+                                                "${}",
+                                                ronn_utils::utils::prettify_int(
+                                                    api_result.pairs[0].clone().volume.h24
+                                                )
+                                            ),
                                             false,
                                         )
                                         .colour(if api_result.pairs[0].price_change.h24 > 0.0 {
