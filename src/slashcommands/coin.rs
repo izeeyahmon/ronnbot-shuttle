@@ -83,6 +83,7 @@ pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicatio
                 .description("String Name of the Collection")
                 .kind(CommandOptionType::String)
                 .required(true)
+                .set_autocomplete(true)
         })
 }
 

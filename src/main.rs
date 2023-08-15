@@ -92,11 +92,20 @@ impl EventHandler for Bot {
                                                     .unwrap_or_default()
                                                     .usd
                                             ),
-                                            true,
+                                            false,
                                         )
                                         .field(
                                             "Chain",
-                                            format!("${}", api_result.pairs[0].clone().chain_id),
+                                            format!(
+                                                "${}@{}",
+                                                api_result.pairs[0].clone().chain_id,
+                                                api_result.pairs[0].clone().dex_id
+                                            ),
+                                            false,
+                                        )
+                                        .field(
+                                            "VOL",
+                                            format!("${}", api_result.pairs[0].clone().volume.h24,),
                                             false,
                                         )
                                         .colour(if api_result.pairs[0].price_change.h24 > 0.0 {
